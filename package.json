@@ -1,0 +1,39 @@
+{
+  "name": "assetverse-assest-management-web-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.6.0",
+    "mongodb": "^7.0.0",
+    "nodemon": "^3.1.11",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "stripe": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "asset-management",
+    "backend",
+    "server",
+    "express",
+    "mongodb",
+    "firebase",
+    "stripe",
+    "socket.io",
+    "real-time"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "Backend server for AssetVerse asset management system with real-time updates, authentication, payment processing, and comprehensive asset tracking features"
+}
