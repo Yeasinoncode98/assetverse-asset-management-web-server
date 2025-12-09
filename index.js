@@ -2613,41 +2613,41 @@ app.delete(
 );
 
 // Get Analytics (HR)
-app.get(
-  "/api/hr/analytics",
-  verifyFirebaseToken,
-  verifyHR,
-  async (req, res) => {
-    try {
-      // Asset type distribution
-      const assetTypes = await assetsCollection
-        .aggregate([
-          { $match: { hrEmail: req.user.email } },
-          { $group: { _id: "$productType", count: { $sum: 1 } } },
-        ])
-        .toArray();
+// app.get(
+//   "/api/hr/analytics",
+//   verifyFirebaseToken,
+//   verifyHR,
+//   async (req, res) => {
+//     try {
+//       // Asset type distribution
+//       const assetTypes = await assetsCollection
+//         .aggregate([
+//           { $match: { hrEmail: req.user.email } },
+//           { $group: { _id: "$productType", count: { $sum: 1 } } },
+//         ])
+//         .toArray();
 
-      // Top requested assets
-      const topRequested = await requestsCollection
-        .aggregate([
-          { $match: { hrEmail: req.user.email, requestStatus: "approved" } },
-          { $group: { _id: "$assetName", count: { $sum: 1 } } },
-          { $sort: { count: -1 } },
-          { $limit: 5 },
-        ])
-        .toArray();
+//       // Top requested assets
+//       const topRequested = await requestsCollection
+//         .aggregate([
+//           { $match: { hrEmail: req.user.email, requestStatus: "approved" } },
+//           { $group: { _id: "$assetName", count: { $sum: 1 } } },
+//           { $sort: { count: -1 } },
+//           { $limit: 5 },
+//         ])
+//         .toArray();
 
-      res.send({
-        assetTypes,
-        topRequested,
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .send({ message: "Failed to fetch analytics", error: error.message });
-    }
-  }
-);
+//       res.send({
+//         assetTypes,
+//         topRequested,
+//       });
+//     } catch (error) {
+//       res
+//         .status(500)
+//         .send({ message: "Failed to fetch analytics", error: error.message });
+//     }
+//   }
+// );
 
 // ==================== EMPLOYEE ROUTES ====================
 
@@ -3386,59 +3386,94 @@ app.post(
     }
   }
 );
+// ...............................................Anaylytics......................
+app.get(
+  "/api/hr/analytics",
+  checkMongoConnection,
+  verifyFirebaseToken,
+  verifyHR,
+  async (req, res) => {
+    try {
+      console.log("📊 Fetching analytics for HR:", req.user.email);
 
-// ==================== ROOT ROUTE ====================
+      // 1. Asset type distribution (Returnable vs Non-returnable)
+      const assetTypes = await assetsCollection
+        .aggregate([
+          { $match: { hrEmail: req.user.email } },
+          {
+            $group: {
+              _id: "$productType",
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { count: -1 } },
+        ])
+        .toArray();
 
-// app.get("/", (req, res) => {
-//   res.send("✅ AssetVerse Backend Server with Firebase Auth is running!");
-// });
+      console.log("📦 Asset types:", assetTypes);
 
-// // ==================== START SERVER ====================
+      // 2. Top 5 most requested assets (approved requests only)
+      const topRequested = await requestsCollection
+        .aggregate([
+          {
+            $match: {
+              hrEmail: req.user.email,
+              requestStatus: "approved",
+            },
+          },
+          {
+            $group: {
+              _id: "$assetName",
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { count: -1 } },
+          { $limit: 5 },
+        ])
+        .toArray();
 
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running on http://localhost:${PORT}`);
-// });
+      console.log("🔝 Top requested:", topRequested);
 
-// // Handle graceful shutdown
-// process.on("SIGINT", async () => {
-//   console.log("Shutting down gracefully...");
-//   await client.close();
-//   process.exit(0);
-// });
+      // 3. Additional stats
+      const totalAssets = await assetsCollection.countDocuments({
+        hrEmail: req.user.email,
+      });
 
-// // ... all your existing code ...
+      const totalRequests = await requestsCollection.countDocuments({
+        hrEmail: req.user.email,
+      });
 
-// // ==================== START SERVER ====================
+      const pendingRequests = await requestsCollection.countDocuments({
+        hrEmail: req.user.email,
+        requestStatus: "pending",
+      });
 
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running on http://localhost:${PORT}`);
-// });
+      const approvedRequests = await requestsCollection.countDocuments({
+        hrEmail: req.user.email,
+        requestStatus: "approved",
+      });
 
-// // Handle graceful shutdown
-// // process.on("SIGINT", async () => {
-// //   console.log("Shutting down gracefully...");
-// //   await client.close();
-// //   process.exit(0);
-// // });
+      console.log("✅ Analytics data prepared successfully");
 
-// // ...............................
-
-// // ==================== HEALTH CHECK ENDPOINT (For External Cron) ====================
-// // ✅ Keep this - cron-job.org will ping this endpoint
-// app.get("/health", (req, res) => {
-//   res.status(200).json({
-//     status: "alive",
-//     message: "AssetVerse Backend is running! 🚀",
-//     timestamp: new Date().toISOString(),
-//     uptime: Math.floor(process.uptime()) + " seconds",
-//     memory: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + " MB",
-//   });
-// });
-
-// console.log("✅ Health check endpoint ready at /health");
-// // ==================== END HEALTH CHECK ====================
-
-// .........................................................
+      res.status(200).send({
+        assetTypes,
+        topRequested,
+        stats: {
+          totalAssets,
+          totalRequests,
+          pendingRequests,
+          approvedRequests,
+        },
+      });
+    } catch (error) {
+      console.error("❌ Analytics error:", error);
+      res.status(500).send({
+        message: "Failed to fetch analytics",
+        error: error.message,
+      });
+    }
+  }
+);
 
 // ==================== ROOT ROUTE ====================
 
