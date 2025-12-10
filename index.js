@@ -183,8 +183,6 @@ const verifyFirebaseToken = async (req, res, next) => {
   }
 };
 
-// ........................................
-
 // Verify HR Role
 const verifyHR = async (req, res, next) => {
   const email = req.user.email;
