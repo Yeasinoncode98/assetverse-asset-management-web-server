@@ -21,12 +21,12 @@ const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware - CORS Configuration
+// Middleware - CORS Configuration for the better connection that dont fail in online and local host
 const corsOptions = {
   origin: [
     "http://localhost:5000", // Local Next.js development
     "http://localhost:5173", // Local Vite development
-    "https://assetverse-assest-management-web-se.vercel.app", // Your backend URL
+    "https://assetverse-assest-management-web-se.vercel.app", //Backend URL
     // Add your frontend Vercel URL here when deployed:
     "https://assetverse-asset-management-web-cli.vercel.app",
   ],
