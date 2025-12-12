@@ -358,7 +358,7 @@ app.get("/api/hr/assets", verifyFirebaseToken, verifyHR, async (req, res) => {
   }
 });
 
-// Add Asset (HR)
+// Add Asset (HR)HR can add asset anyway he can also edit
 app.post("/api/hr/assets", verifyFirebaseToken, verifyHR, async (req, res) => {
   try {
     const assetData = {
