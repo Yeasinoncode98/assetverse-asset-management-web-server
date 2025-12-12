@@ -295,7 +295,7 @@ app.post(
   }
 );
 
-// ...............................
+// ...............................Checking the role as well as who is he HR or EMPLOYEE
 
 app.get(
   "/api/auth/me",
