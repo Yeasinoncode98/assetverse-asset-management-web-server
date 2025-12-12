@@ -384,7 +384,7 @@ app.post("/api/hr/assets", verifyFirebaseToken, verifyHR, async (req, res) => {
   }
 });
 
-// .................................
+// .................................Put added here to change in the code from the frontend........................
 
 app.put(
   "/api/hr/assets/:id",
