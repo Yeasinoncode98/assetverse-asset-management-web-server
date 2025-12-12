@@ -255,7 +255,7 @@ app.post("/api/auth/register", checkMongoConnection, async (req, res) => {
   }
 });
 
-// ........................
+// ........................Login FUnctions works from here added some delay for checking the user.............
 
 app.post(
   "/api/auth/login",
